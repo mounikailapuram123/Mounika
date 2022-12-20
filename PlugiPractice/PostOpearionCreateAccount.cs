@@ -1,15 +1,13 @@
-﻿using Microsoft.Xrm.Sdk;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Runtime.Serialization.Json;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace ClassLibrary2
 {
+    using Microsoft.Xrm.Sdk;
+    using System;
+    using System.IO;
+    using System.Net;
+    using System.Runtime.Serialization.Json;
+    using System.Text;
     public class PostOpearionCreateAccount : IPlugin
     {
         private readonly string _unsecureString;

@@ -50,9 +50,6 @@ namespace PlugiPractice
 
             // throw new NotImplementedException();
         }
-
-
-
         private static void GetUserOfTeams(IOrganizationService service, string team, Guid recordaID)
         {
             string fetch = @"<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='true'>" +
@@ -82,8 +79,6 @@ namespace PlugiPractice
 
                 makeFormReadOnly(service, recordaID);
             }
-
-
         }
         private static void makeFormReadOnly(IOrganizationService service, Guid recordId)
         {
@@ -91,14 +86,6 @@ namespace PlugiPractice
             opportunity["statuscode"] = new OptionSetValue(2);
             opportunity.Id = recordId;
             service.Update(opportunity);
-
-
-            //var stateRef = new EntityReference("opportunity", recordId);
-            //SetStateRequest req = new SetStateRequest();
-            //req.State = new OptionSetValue(0);
-            //req.Status = new OptionSetValue(2);
-            //req.EntityMoniker = stateRef;
-            //SetStateResponse stateSet = (SetStateResponse)service.Execute(req);
         }
 
     }
