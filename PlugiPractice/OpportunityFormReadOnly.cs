@@ -19,26 +19,12 @@ namespace PlugiPractice
             if (context.InputParameters.Contains("Target") && context.InputParameters["Target"] is Entity)
             {
                 Entity entity = (Entity)context.InputParameters["Target"];
-
                 try
                 {
-
                     int accessLevel = ((OptionSetValue)entity["sknd_acceslevel"]).Value;
-                    string managemnt = "08BDE210-877F-ED11-81AD-000D3A5656E9";
-                    string operationnal = "D8283DB1-867F-ED11-81AD-000D3A5656E9";
-                    string financial = "662E5CE1-867F-ED11-81AD-000D3A5656E9";
-
                     if (accessLevel == 1)
                     {
-                        GetUserOfTeams(service, financial, entity.Id);
-                    }
-                    else if (accessLevel == 2)
-                    {
-                        GetUserOfTeams(service, managemnt, entity.Id);
-                    }
-                    else if (accessLevel == 3)
-                    {
-                        GetUserOfTeams(service, operationnal, entity.Id);
+                        GetUserOfTeams(service, context.UserId, entity);
                     }
                 }
                 catch (Exception)
@@ -47,46 +33,59 @@ namespace PlugiPractice
                     throw;
                 }
             }
-
-            // throw new NotImplementedException();
-        }
-        private static void GetUserOfTeams(IOrganizationService service, string team, Guid recordaID)
+        } 
+        private static void GetUserOfTeams(IOrganizationService service, Guid SystemUserid, Entity entity)
         {
-            string fetch = @"<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='true'>" +
-                                            "<entity name='systemuser'>" +
-                                              "<attribute name='fullname' />" +
-                                              "<attribute name='businessunitid' />" +
-                                              "<attribute name='title' />" +
-                                              "<attribute name='address1_telephone1' />" +
-                                              "<attribute name='positionid' />" +
-                                              "<attribute name='systemuserid' />" +
-                                              "<order attribute='fullname' descending='false' />" +
-                                              "<filter type='and'>" +
-                                                "<condition attribute='domainname' operator='not-null' />" +
-                                              "</filter>" +
-                                              "<link-entity name='teammembership' from='systemuserid' to='systemuserid' visible='false' intersect='true'>" +
-                                                "<link-entity name='team' from='teamid' to='teamid' alias='ag'>" +
-                                                  "<filter type='and'>" +
-                                                    "<condition attribute='teamid' operator='eq' uiname='' uitype='team' value='" + team + "' />" +
-                                                  "</filter>" +
-                                                "</link-entity>" +
-                                              "</link-entity>" +
-                                            "</entity>" +
-                                          "</fetch>";
-            EntityCollection entityCollection = service.RetrieveMultiple(new FetchExpression(fetch));
+            // bool isRole = false;
+            QueryExpression team = new QueryExpression("team");
+            team.ColumnSet.AddColumns(new string[] { "teamid", "name" });
+            EntityCollection entityCollection = service.RetrieveMultiple(team);
             if (entityCollection != null && entityCollection.Entities != null && entityCollection.Entities.Count > 0)
             {
-
-                makeFormReadOnly(service, recordaID);
+                foreach (Entity item in entityCollection.Entities)
+                {
+                    Guid teamid = item.Id;
+                    string TeamName = item.Contains("name") ? Convert.ToString(item["name"]) : string.Empty;
+                    if (TeamName == "Financial")
+                    {
+                        String FetchXml = @"<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='true'>" +
+                                           "<entity name='systemuser'>" +
+                                           "<attribute name='fullname' />" +
+                                           "<attribute name='businessunitid' />" +
+                                           "<attribute name='title' />" +
+                                           "<attribute name='address1_telephone1' />" +
+                                           "<attribute name='positionid' />" +
+                                           "<attribute name='systemuserid' />" +
+                                           "<order attribute='fullname' descending='false' />" +
+                                           "<filter type='and'>" +
+                                           "<condition attribute='systemuserid' operator='not-null' />" +
+                                           "</filter>" +
+                                          "<link-entity name='teammembership' from='systemuserid'                                          to='systemuserid' visible='false' intersect='true'>" +
+                                          "<link-entity name='team' from='teamid' to='teamid' alias='ab'>" +
+                                          "<filter type='and'>" +
+                                          "<condition attribute='teamid' operator='eq' uiname='Finance'                                  uitype='team' value='" + teamid + "' />" +
+                                          "</filter>" +
+                                          "</link-entity>" +
+                                          "</link-entity>" +
+                                          "</entity>" +
+                                          "</fetch>";
+                        EntityCollection UserCollection = service.RetrieveMultiple(new FetchExpression(FetchXml));
+                        if (UserCollection != null && UserCollection.Entities != null && UserCollection.Entities.Count > 0)
+                        {
+                            foreach (var user in UserCollection.Entities)
+                            {
+                                string fullname = user.Contains("fullname") ? Convert.ToString(user.Attributes["fullname"]) : string.Empty;
+                                if (fullname != null)
+                                {
+                                          
+                                               
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
-        private static void makeFormReadOnly(IOrganizationService service, Guid recordId)
-        {
-            Entity opportunity = new Entity("opportunity");
-            opportunity["statuscode"] = new OptionSetValue(2);
-            opportunity.Id = recordId;
-            service.Update(opportunity);
-        }
-
+     
     }
 }

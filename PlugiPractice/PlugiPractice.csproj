@@ -93,6 +93,9 @@
   <ItemGroup>
     <Compile Include="OpportunityFormReadOnly.cs" />
     <Compile Include="PostOpearionCreateAccount.cs" />
+    <Compile Include="PostOperationAccountConfiguration.cs" />
+    <Compile Include="PostOperationAccountUpdate.cs" />
+    <Compile Include="PostOperationCreateWorkOrder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
